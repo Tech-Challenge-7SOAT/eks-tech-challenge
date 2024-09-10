@@ -22,9 +22,9 @@ provider "kubernetes" {
 }
 
 data "aws_eks_cluster" "main" {
-  name = "nome-do-seu-cluster-eks"
+  name = aws_eks_cluster.main.name
 }
 
 data "aws_eks_cluster_auth" "main" {
-  name = data.aws_eks_cluster.main.name
+  name = aws_eks_cluster.main.name
 }

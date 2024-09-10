@@ -1,103 +1,69 @@
-resource "kubernetes_namespace" "fastfood-namespace" {
-    metadata {
-        name = "fastfood-api"
-    }
+resource "aws_eks_cluster" "main" {
+  name     = "tech-challenge-eks"
+  role_arn = aws_iam_role.eks_role.arn
+
+  vpc_config {
+    subnet_ids = aws_subnet.eks_subnets[*].id
+  }
+
+  depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
 }
 
-resource "kubernetes_deployment" "fastfood-deployment" {
-  metadata {
-    name = "fastfood-api"
-    namespace = kubernetes_namespace.fastfood-namespace.metadata[0].name
-    labels = {
-      app = "fastfood"
-    }
-  }
-  spec {
-    replicas = 2
-    selector {
-      match_labels = {
-        app = "fastfood"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "fastfood"
+resource "aws_iam_role" "eks_role" {
+  name = "eks-cluster-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
         }
-      }
-      spec {
-        container {
-          name  = "fastfood-api"
-          image = "064151784429.dkr.ecr.us-east-1.amazonaws.com/fastfood-api"
-          port {
-            container_port = 8080
-          }
-          env {
-            name  = "DB_HOST"
-            value = "${kubernetes_service.postgres-service.metadata[0].name}.${kubernetes_namespace.fastfood-namespace.metadata[0].name}.svc.cluster.local"
-          }
-          env {
-            name  = "DB_PORT"
-            value = "5432"
-          }
-          env {
-            name  = "DB_NAME"
-            value = "mydb"
-          }
-          env {
-            name  = "DB_USER"
-            value = "root"
-          }
-          env {
-            name  = "DB_PASSWORD"
-            value = "root"
-          }
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_role.name
+}
+
+resource "aws_eks_node_group" "node_group" {
+  cluster_name    = aws_eks_cluster.main.name
+  node_group_name = "primary"
+  node_role_arn   = aws_iam_role.eks_node_role.arn
+  subnet_ids      = aws_subnet.eks_subnets[*].id
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  depends_on = [aws_iam_role_policy_attachment.eks_worker_node_policy]
+}
+
+resource "aws_iam_role" "eks_node_role" {
+  name = "eks-node-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
         }
-      }
-    }
-  }
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
 }
 
-resource "kubernetes_horizontal_pod_autoscaler" "fastfood-hpa" {
-  metadata {
-    name = "fastfood-api"
-    namespace = kubernetes_namespace.fastfood-namespace.metadata[0].name
-  }
-  spec {
-    max_replicas = 10
-    min_replicas = 1
-
-    scale_target_ref {
-      kind        = "Deployment"
-      name        = "fastfood-api"
-      api_version = "apps/v1"
-    }
-    target_cpu_utilization_percentage = 75
-  }
-}
-
-resource "kubernetes_service" "fastfood-service" {
-  metadata {
-    name      = "fastfood-api"
-    namespace = kubernetes_namespace.fastfood-namespace.metadata[0].name
-  }
-  spec {
-    selector  = {
-      app = kubernetes_deployment.fastfood-deployment.spec[0].template[0].metadata[0].labels.app
-    }
-    port {
-      port        = 80
-      target_port = 8080
-    }
-  }
+resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node_role.name
 }
