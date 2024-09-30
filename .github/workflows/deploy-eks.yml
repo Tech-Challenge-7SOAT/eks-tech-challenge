@@ -10,7 +10,7 @@ env:
   CLUSTER_NAME: "EKS-TECH-CHALLENGE"
 
 jobs:
-  create-cluster::
+  create-cluster:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
