@@ -4,38 +4,41 @@ on:
   push:
     branches:
       - master
-  # workflow_dispatch:
+  workflow_dispatch:
 
 env:
   REGION_DEFAULT: "us-east-1"
   CLUSTER_NAME: "EKS-TECH-CHALLENGE"
 
 jobs:
-  # create-cluster:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-  #         aws-region: ${{ env.REGION_DEFAULT }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.REGION_DEFAULT }}
         
-  #     - name: Initialize Terraform
-  #       run: terraform init
+      - name: Initialize Terraform
+        run: terraform init
 
-  #     - name: Create EKS Cluster
-  #       run: terraform apply -auto-approve
+      - name: Create EKS Cluster
+        run: terraform apply -auto-approve
 
   update-kubeconfig:
     runs-on: ubuntu-latest
-    # needs: create-cluster  # Este job depende do job anterior
-    # if: ${{ github.event_name == 'workflow_dispatch' }} # Somente roda manualmente
+    needs: create-cluster  # Este job depende do job anterior
+    if: ${{ github.event_name == 'workflow_dispatch' }} # Somente roda manualmente
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
