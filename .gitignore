@@ -1,0 +1,29 @@
+# Arquivos de estado
+*.tfstate
+*.tfstate.*
+
+# Logs de crash do Terraform
+crash.log
+
+# Arquivo de bloqueio do Terraform
+*.tfplan
+
+# Diretório de backup do Terraform
+.terraform/
+
+# Arquivos de backup gerados automaticamente
+*.backup
+*.log
+
+# Arquivo de variáveis de ambiente sensíveis
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+
+# Outras saídas sensíveis ou temporárias
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
