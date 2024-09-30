@@ -1,55 +1,24 @@
-name: EKS Workflow
+name: Deploy AWS Academy - EKS
 
 on:
   push:
     branches:
       - master
-  workflow_dispatch:
 
 env:
   REGION_DEFAULT: "us-east-1"
   CLUSTER_NAME: "EKS-TECH-CHALLENGE"
 
 jobs:
-  create-cluster:
+  deploy:
+    name: Deploy AWS Academy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ env.REGION_DEFAULT }}
-        
-      - name: Initialize Terraform
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan
-
-      - name: Terraform Apply
-        run: terraform apply --auto-approve
-
-  update-kubeconfig:
-    runs-on: ubuntu-latest
-    needs: create-cluster  # Este job depende do job anterior
-    if: ${{ github.event_name == 'workflow_dispatch' }} # Somente roda manualmente
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -64,14 +33,14 @@ jobs:
           kubectl apply -f k8s/eks-deployment.yaml
           kubectl apply -f k8s/eks-svc.yaml
       
-      - name: Install kubectl
-        run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
+      # - name: Install kubectl
+      #   run: |
+      #     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+      #     chmod +x ./kubectl
+      #     sudo mv ./kubectl /usr/local/bin/kubectl
 
-      - name: Deploy Kubernetes Dashboard
-        run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-          kubectl apply -f k8s/eks-admin-service-account.yaml
-          kubectl proxy &
+      # - name: Deploy Kubernetes Dashboard
+      #   run: |
+      #     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+      #     kubectl apply -f k8s/eks-admin-service-account.yaml
+      #     kubectl proxy &
