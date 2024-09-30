@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  workflow_dispatch:
+  # workflow_dispatch:
 
 env:
   REGION_DEFAULT: "us-east-1"
@@ -34,7 +34,7 @@ jobs:
   update-kubeconfig:
     runs-on: ubuntu-latest
     # needs: create-cluster  # Este job depende do job anterior
-    if: ${{ github.event_name == 'workflow_dispatch' }} # Somente roda manualmente
+    # if: ${{ github.event_name == 'workflow_dispatch' }} # Somente roda manualmente
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
