@@ -1,4 +1,4 @@
-name: EKS Workflow
+name: Deploy AWS Academy - EKS
 
 on:
   push:

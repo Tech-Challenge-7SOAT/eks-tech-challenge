@@ -1,4 +1,4 @@
-name: EKS Workflow
+name: Create Infra AWS
 
 on:
   push:
