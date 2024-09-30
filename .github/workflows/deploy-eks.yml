@@ -1,0 +1,46 @@
+name: Deploy AWS Academy - EKS
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  REGION_DEFAULT: "us-east-1"
+  CLUSTER_NAME: "EKS-TECH-CHALLENGE"
+
+jobs:
+  deploy:
+    name: Deploy AWS Academy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ID }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.REGION_DEFAULT }}
+
+      - name: Update Kube Config
+        run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.REGION_DEFAULT }}
+
+      - name: Kube Apply
+        run: |
+          kubectl apply -f k8s/eks-deployment.yaml
+          kubectl apply -f k8s/eks-svc.yaml
+      
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - name: Deploy Kubernetes Dashboard
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+          kubectl apply -f eks-admin-service-account.yaml
+          kubectl proxy &

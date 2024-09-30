@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastfood-api-deployment
+  labels:
+    app: fastfood-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastfood-api
+  template:
+    metadata:
+      labels:
+        app: fastfood-api
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: fastfood-api
+        image: 064151784429.dkr.ecr.us-east-1.amazonaws.com/fastfood-api:latest
+        resources:
+            requests:
+              cpu: 256m
+              memory: 512Mi
+            limits:
+              cpu: 512m
+              memory: 1024Mi
+        ports:
+        - name: http
+          containerPort: 80
+        imagePullPolicy: IfNotPresent
+      nodeSelector:
+        kubernetes.io/os: linux
