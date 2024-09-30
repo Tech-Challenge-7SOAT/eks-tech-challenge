@@ -26,7 +26,7 @@ spec:
                 - arm64
       containers:
       - name: fastfood-api
-        image: 064151784429.dkr.ecr.us-east-1.amazonaws.com/fastfood-api:latest
+        image: 064151784429.dkr.ecr.us-east-1.amazonaws.com/fastfood-api:ef74f8c221d546d17c7e9470b128b196516c7741
         resources:
             requests:
               cpu: 256m
