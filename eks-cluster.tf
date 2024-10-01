@@ -3,8 +3,17 @@ resource "aws_eks_cluster" "eks-cluster" {
   role_arn = var.labRole
 
   vpc_config {
-    subnet_ids         = [for subnet in data.aws_subnet.subnet : subnet.id if subnet.availability_zone != "${var.AWS_REGION}e"]
-    security_group_ids = [aws_security_group.sg.id]
+    endpoint_public_access    = true
+    endpoint_private_access   = false
+
+    subnet_ids = [
+      aws_subnet.subnet-eks-1-pub.id,
+      aws_subnet.subnet-eks-2-pub.id,
+      aws_subnet.subnet-eks-1-pvt.id,
+      aws_subnet.subnet-eks-2-pvt.id
+    ]
+
+    public_access_cidrs     = ["0.0.0.0/0"]
   }
 
   access_config {

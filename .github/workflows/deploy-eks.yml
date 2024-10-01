@@ -33,14 +33,14 @@ jobs:
           kubectl apply -f k8s/eks-deployment.yaml
           kubectl apply -f k8s/eks-svc.yaml
       
-      # - name: Install kubectl
-      #   run: |
-      #     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-      #     chmod +x ./kubectl
-      #     sudo mv ./kubectl /usr/local/bin/kubectl
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
 
-      # - name: Deploy Kubernetes Dashboard
-      #   run: |
-      #     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-      #     kubectl apply -f k8s/eks-admin-service-account.yaml
-      #     kubectl proxy &
+      - name: Deploy Kubernetes Dashboard
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+          kubectl apply -f k8s/eks-admin-service-account.yaml
+          kubectl proxy &
