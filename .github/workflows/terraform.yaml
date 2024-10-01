@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - feature/*
-  
-  workflow_dispatch: # Permite o disparo manual
 
 env:
   REGION_DEFAULT: "us-east-1"
@@ -39,7 +37,6 @@ jobs:
 
   terraform-apply:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' # Condição para rodar manualmente
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
