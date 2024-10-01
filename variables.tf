@@ -22,6 +22,10 @@ variable "AWS_REGION" {
   type        = string
 }
 
+variable "regionDefault" {
+  default = "us-east-1"
+}
+
 variable "projectName" {
   default = "EKS-TECH-CHALLENGE"
 }
