@@ -8,6 +8,7 @@ on:
 env:
   REGION_DEFAULT: "us-east-1"
   CLUSTER_NAME: "EKS-TECH-CHALLENGE"
+  NAMESPACE: "fastfood-apis"
 
 jobs:
   deploy:
@@ -27,17 +28,16 @@ jobs:
       
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.REGION_DEFAULT }}
-
-      - name: Kube Apply
-        run: |
-          kubectl apply -f k8s/eks-deployment.yaml
-          kubectl apply -f k8s/eks-svc.yaml
       
       - name: Install kubectl
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - name: Create Namespace
+        run: |
+          kubectl create namespace ${{ env.NAMESPACE }} || echo "Namespace already exists"
 
       - name: Deploy Kubernetes Dashboard
         run: |
