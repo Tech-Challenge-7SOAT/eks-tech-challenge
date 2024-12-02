@@ -28,6 +28,13 @@ jobs:
       
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.REGION_DEFAULT }}
+
+      - name: Kube Apply
+        run: |
+          kubectl apply -f k8s/eks-deployment.yaml
+          kubectl apply -f k8s/eks-svc.yaml
+          kubectl apply -f k8s/eks-configmap.yaml
+          kubectl apply -f k8s/eks-secret.yaml
       
       - name: Install kubectl
         run: |
