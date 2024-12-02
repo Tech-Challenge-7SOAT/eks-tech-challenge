@@ -2,10 +2,6 @@ resource "aws_eks_node_group" "eks-node" {
   cluster_name    = aws_eks_cluster.eks-cluster.name
   node_group_name = var.nodeGroup
   node_role_arn   = var.labRole
-  # subnet_ids      = [ ## tentativa de criar novas subnets
-  #   aws_subnet.subnet-eks-1-pub.id,
-  #   aws_subnet.subnet-eks-2-pub.id
-  # ]
   subnet_ids      = [for subnet in data.aws_subnet.subnet : subnet.id if subnet.availability_zone != "${var.regionDefault}e"]
   disk_size       = 50
   instance_types  = [var.instanceType]
