@@ -32,6 +32,8 @@ jobs:
         run: |
           kubectl apply -f k8s/eks-deployment.yaml
           kubectl apply -f k8s/eks-svc.yaml
+          kubectl apply -f k8s/eks-configmap.yaml
+          kubectl apply -f k8s/eks-secret.yaml
       
       - name: Install kubectl
         run: |
